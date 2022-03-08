@@ -6,7 +6,6 @@
 - **Cupid**: Stack
 - **Cipher**: Circular queue
 - **ShapeTree**: N-ary tree
-- **Wordle**: Linked list
 
 ## Second Year Courses
  - **BoardGame**: Hash table using separate chaining
