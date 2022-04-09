@@ -1,0 +1,25 @@
+Script started on 2022-02-23 14:03:38-05:00 [TERM="xterm-256color" TTY="/dev/pts/0" COLUMNS="191" LINES="37"]
+]0;bluu8@compute:~/2211/Assignments/Assignment3/Part1[?2004h[bluu8@compute Part1]$ ./part1.out
+[?2004lPlease enter your integers separated by spaces (invalid characters will stop input): 1 2 9 8 6 4   7 999 -7373
+Elements: 1 2 9 8 6 4 7 999 -7373 
+There are 9 numbers stored
+Size of this array (300) in bytes: 1200
+Elements in reverse order: -7373 999 7 4 6 8 9 2 1 
+Smallest value in array: -7373
+Sum of values in array: -6337
+Elements but first and last are swapped: -7373 2 9 8 6 4 7 999 1
+Elements of array in ascending order: -7373 1 2 4 6 7 8 9 999 
+]0;bluu8@compute:~/2211/Assignments/Assignment3/Part1[?2004h[bluu8@compute Part1]$ ./part1.out
+[?2004lPlease enter your integers separated by spaces (invalid characters will stop input): 3746674             28328372 943954378==                5 3 1 -987 0 -1 -438747474     2 9  
+Elements: 3746674 28325 3 1 -987 -1 -43874 
+There are 7 numbers stored
+Size of this array (300) in bytes: 1200
+Elements in reverse order: -43874 -1 -987 1 3 28325 3746674 
+Smallest value in array: -43874
+Sum of values in array: 3730141
+Elements but first and last are swapped: -43874 28325 3 1 -987 -1 3746674
+Elements of array in ascending order: -43874 -987 -1 1 3 28325 3746674 
+]0;bluu8@compute:~/2211/Assignments/Assignment3/Part1[?2004h[bluu8@compute Part1]$ exit
+[?2004lexit
+
+Script done on 2022-02-23 14:04:27-05:00 [COMMAND_EXIT_CODE="0"]
