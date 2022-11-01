@@ -1,0 +1,100 @@
+body {
+    background-color: rgb(31, 31, 31);
+}
+
+.wrapper {
+    background-color: white;
+}
+
+.white, .navlink {
+    color: white;
+}
+
+.red {
+    color: rgb(235, 23, 0);
+}
+
+.tile {
+    background: url("../img/tile.png");
+}
+
+h1, h2, h3, h4, a, label {
+    font-family: 'Lato', sans-serif;
+}
+
+a {
+    color: blue;
+}
+
+h1 {
+    font-size: 50px;
+}
+
+h2 {
+    font-size: 35px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+p, li {
+    font-family: "Work Sans", sans-serif;
+    font-size: 20px;
+}
+
+.image {
+    width: 100%;
+}
+
+.top {
+    vertical-align: top;
+} 
+
+.center {
+    text-align: center;
+}
+
+.padleft {
+    position: relative;
+    left: 30px;
+}
+
+.i1a2 {
+    width: 895px; 
+}
+
+.nav {
+    background-color: rgb(31, 31, 31);
+    transition: background-color 0.2s;
+}
+
+.nav:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+.nav:hover .navlink {
+    color: red;
+}
+
+.navlink {
+    transition: color 0.2s;
+}
+
+.rotate {
+    animation: rotate 1s alternate infinite ease-in-out;
+}
+
+@keyframes rotate {
+    0% { transform: rotate(5deg) }
+    100% { transform: rotate(-5deg) }
+}
+
+#comments {
+    width: 300px;
+    height: 100px;
+}
+
+.hidea {
+    text-decoration: none;
+}
