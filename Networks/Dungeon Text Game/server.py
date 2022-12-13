@@ -1,7 +1,7 @@
 # server.py
 # This is a server for a room. It can hold items on the floor.
-# Format: python3 server.py port RoomName "Room Description" "item1" "item2" "itemN" [-n address]
-# Add on -n address, or -s address etc etc to link up rooms
+# Format: python3 server.py RoomName "Room Description" "item1" "item2" "itemN" [-n address]
+# Add on -n name, or -s name etc etc to link up rooms
 
 from socket import *
 import sys
@@ -9,16 +9,24 @@ import signal
 import argparse
 from urllib.parse import urlparse
 
+# discovery port
+discoveryPort = 12001
+
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+
 # terminate server
 def terminate(sig, frame):
     print("Shutting down server...")
+
+    # deregister, then send shutdown to clients
+    serverSocket.sendto("DEREGISTER {}".format(args.name).encode(), ("localhost", discoveryPort))
+
     for names in players:
         serverSocket.sendto(("shutdown").encode(), players[names]["address"])
     sys.exit(0)
 
 # argument parsing for room setup
 parser = argparse.ArgumentParser()
-parser.add_argument("port")
 parser.add_argument("name")
 parser.add_argument("desc")
 parser.add_argument("items", nargs="*")
@@ -28,69 +36,63 @@ parser.add_argument("-e")
 parser.add_argument("-w")
 args = parser.parse_args()
 
-print("Creating server...")
+print("Attempting to allocate a port...")
 
-# create the server
-serverPort = args.port
-if not serverPort.isdigit():
-    print("Invalid port number, it must be an integer")
+# find if room already exists
+serverSocket.sendto("LOOKUP {}".format(args.name).encode(), ("localhost", discoveryPort))
+roomCheck, add = serverSocket.recvfrom(2048)
+roomCheck = roomCheck.decode()
+
+# room name already exists/lookup failed, exit
+if roomCheck.startswith("OK"):
+    print(args.name, "was already found in the room list. Pick another room name")
     sys.exit(-1)
 
-# check if rooms are valid
-def checkRoomURL(url):
-    # attempt connection to server
-    url = urlparse(url)
-    if url.scheme != "room":
-        return False
+# otherwise, continue
+serverSocket = socket(AF_INET, SOCK_DGRAM)
+serverSocket.bind(("localhost", 0))
+serverPort = serverSocket.getsockname()[1]
+print("This room's port is", serverPort)
 
-    urlloc = url.netloc.split(":")
-    if (len(urlloc) < 2):
-        return False
+serverSocket.sendto("REGISTER room://localhost:{} {}".format(serverPort, args.name).encode(), ("localhost", discoveryPort))
+registerResponse, add = serverSocket.recvfrom(2048)
+registerResponse = registerResponse.decode()
 
-    if not serverPort.isdigit():
-        return False
-    
-    return True
+# final check for OK
+if not registerResponse.startswith("OK"):
+    print(registerResponse.replace("NOTOK ", ""))
+    sys.exit(-1)
 
-# check if the adjacent room URLs are valid
+# check if the adjacent room URLs are valid, skip if not
 north = None
 south = None
 east = None
 west = None
 
-try:
-    if args.n:
-        if not checkRoomURL(args.n): 
-            raise Exception("Invalid address for North room. Format: room://address:port")
-        else: 
-            north = args.n
-            print("North:", north)
-    if args.s:
-        if not checkRoomURL(args.s): 
-            raise Exception("Invalid address for South room. Format: room://address:port")
-        else: 
-            south = args.s
-            print("South:", south)
-    if args.e:
-        if not checkRoomURL(args.e): 
-            raise Exception("Invalid address for East room. Format: room://address:port")
-        else: 
-            east = args.e
-            print("East", east)
-    if args.w:
-        if not checkRoomURL(args.w): 
-            raise Exception("Invalid address for West room. Format: room://address:port")
-        else: 
-            west = args.w
-            print("West:", west)
-except Exception as e:
-    print(e)
-    sys.exit(-1)
+# lookup the room, if it is registered return true
+def findRoom(name):
+    serverSocket.sendto("LOOKUP {}".format(name).encode(), ("localhost", discoveryPort))
+    address, add = serverSocket.recvfrom(2048)
+    address = address.decode()
 
-serverSocket = socket(AF_INET, SOCK_DGRAM)
-serverSocket.bind(("localhost", int(serverPort)))
+    if address.startswith("NOTOK"):
+        return False
+    
+    return True
 
-print("This room's port is", serverPort)
+# assign room names from params
+if args.n:
+    north = args.n
+    print("North:", north)
+if args.s:
+    south = args.s
+    print("South:", south)
+if args.e:
+    east = args.e
+    print("East", east)
+if args.w:
+    west = args.w
+    print("West:", west)
 
 # server stuff
 allowed_commands = [
@@ -157,7 +159,7 @@ while True:
     pre = pre.split(":")
     user = pre[0]
     command = pre[1]
-
+    
     if command == "join": # incoming client
         # player already exists
         if user in players:
@@ -228,8 +230,10 @@ while True:
                 serverSocket.sendto("{}: {}".format(who, params).encode(), players[name]["address"])
         else:
             serverSocket.sendto("You must enter enter some text".encode(), players[user]["address"])
+    
+    # move north, south, east, or west
     elif command == "north":
-        if not north:
+        if not north or not findRoom(north):
             serverSocket.sendto("There is no northern room.".encode(), players[user]["address"])
         else:
             for name in players:
@@ -237,12 +241,12 @@ while True:
                     serverSocket.sendto("{} is moving to the northern room.".format(user).encode(), players[name]["address"])
             serverSocket.sendto("Moving to the northern room.".encode(), players[user]["address"])
             serverSocket.sendto("-----------------------".encode(), players[user]["address"])
-            serverSocket.sendto("north:{} {}".format(north, ",".join(players[user]["items"])).encode(), players[user]["address"])
+            serverSocket.sendto("roomchange:{} {}".format(north, ",".join(players[user]["items"])).encode(), players[user]["address"])
             print("{} is moving to the northern room".format(user))
 
             players.pop(user)
     elif command == "south":
-        if not south:
+        if not south or not findRoom(south):
             serverSocket.sendto("There is no southern room.".encode(), players[user]["address"])
         else:
             for name in players:
@@ -250,12 +254,12 @@ while True:
                     serverSocket.sendto("{} is moving to the southern room.".format(user).encode(), players[name]["address"])
             serverSocket.sendto("Moving to the southern room.".encode(), players[user]["address"])
             serverSocket.sendto("-----------------------".encode(), players[user]["address"])
-            serverSocket.sendto("south:{} {}".format(south, ",".join(players[user]["items"])).encode(), players[user]["address"])
+            serverSocket.sendto("roomchange:{} {}".format(south, ",".join(players[user]["items"])).encode(), players[user]["address"])
             print("{} is moving to the southern room".format(user))
 
             players.pop(user)
     elif command == "east":
-        if not east:
+        if not east or not findRoom(east):
             serverSocket.sendto("There is no eastern room.".encode(), players[user]["address"])
         else:
             for name in players:
@@ -263,12 +267,12 @@ while True:
                     serverSocket.sendto("{} is moving to the eastern room.".format(user).encode(), players[name]["address"])
             serverSocket.sendto("Moving to the eastern room.".encode(), players[user]["address"])
             serverSocket.sendto("-----------------------".encode(), players[user]["address"])
-            serverSocket.sendto("east:{} {}".format(east, ",".join(players[user]["items"])).encode(), players[user]["address"])
+            serverSocket.sendto("roomchange:{} {}".format(east, ",".join(players[user]["items"])).encode(), players[user]["address"])
             print("{} is moving to the eastern room".format(user))
 
             players.pop(user)
     elif command == "west":
-        if not west:
+        if not west or not findRoom(west):
             serverSocket.sendto("There is no western room.".encode(), players[user]["address"])
         else:
             for name in players:
@@ -276,10 +280,12 @@ while True:
                     serverSocket.sendto("{} is moving to the western room.".format(user).encode(), players[name]["address"])
             serverSocket.sendto("Moving to the western room.".encode(), players[user]["address"])
             serverSocket.sendto("-----------------------".encode(), players[user]["address"])
-            serverSocket.sendto("west:{} {}".format(west, ",".join(players[user]["items"])).encode(), players[user]["address"])
+            serverSocket.sendto("roomchange:{} {}".format(west, ",".join(players[user]["items"])).encode(), players[user]["address"])
             print("{} is moving to the western room".format(user))
 
             players.pop(user)
+
+    # drop all items from client
     elif command == "exit":
         items_dropped = None
         

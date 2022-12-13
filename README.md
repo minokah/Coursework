@@ -1,2 +1,2 @@
 # University Projects
- University projects/assignments from classes
+ University projects/assignments from courses at Western University (September 2020 - Present)
