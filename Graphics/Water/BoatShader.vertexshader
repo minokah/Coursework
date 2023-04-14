@@ -1,0 +1,57 @@
+#version 440
+
+// Input vertex data, different for all executions of this shader.
+layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 1) in vec2 uv;
+
+// Output data
+out vec2 uv_vs;
+
+// Values that stay constant for the whole mesh.
+uniform float time;
+uniform mat4 MVP;
+uniform vec3 lightpos;
+uniform sampler2D waterTexture;
+uniform sampler2D displacementTexture;
+
+// Gerstner function
+vec3 Gerstner(vec3 worldpos, float w, float A, float phi, float Q, vec2 D, int N) {
+	vec2 xz = vec2(worldpos.x, worldpos.z);
+
+	float x = Q * A * D.x * cos(dot(w * D, xz) + (phi * time));
+	float y = A * sin(dot(w * D, xz) + (phi * time));
+	float z = Q * A * D.y * cos(dot(w * D, xz) + (phi * time));
+
+	return vec3(x, y, z);
+}
+
+mat4 BuildTranslation(vec3 delta)
+{
+    return mat4(
+        vec4(1.0, 0.0, 0.0, 0.0),
+        vec4(0.0, 1.0, 0.0, 0.0),
+        vec4(0.0, 0.0, 1.0, 0.0),
+        vec4(delta, 1.0));
+}
+
+void main() {
+	uv_vs = uv;
+
+	// Displacement
+	float dispStrength = 0.1;
+    float displace = texture(displacementTexture, uv).x;
+	if (displace > 0.556) displace = 0.556;
+	if (displace < 0.555) displace = 0.555;
+
+	// This is not the proper way to do the bonus, as the boat will warp with the waves
+	// but the boat at least moves
+	vec4 pos = vec4(vertexPosition_modelspace, 1);
+		
+	pos += vec4(Gerstner(vertexPosition_modelspace, 4, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+	pos += vec4(Gerstner(vertexPosition_modelspace, 2, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
+	pos += vec4(Gerstner(vertexPosition_modelspace, 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
+	pos += vec4(Gerstner(vertexPosition_modelspace, 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
+
+	pos.y += displace * dispStrength;
+	gl_Position = MVP * pos;
+}

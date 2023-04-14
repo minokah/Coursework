@@ -1,0 +1,139 @@
+Script started on 2023-02-14 18:47:57-05:00 [COMMAND="./run-assignment.sh 2" TERM="xterm-256color" TTY="/dev/pts/337" COLUMNS="139" LINES="18"]
+[H[2J[3J
+ASSIGNMENT 2 STARTED - Tue Feb 14 06:47:57 PM EST 2023
+
+Cleaning environment
+----------------------------
+rm -f assignment-2
+
+Checking environment
+----------------------------
+846ec3b283736bf8a0c1d7065e6d8de3  ./run-assignment.sh
+c0cb8c0def1f993abc34b228c59b52b6  assignment-2.c
+Makefile: OK
+
+Building environment
+----------------------------
+make all
+make[1]: Entering directory '/home/bluu8/3305/Assignment-2'
+gcc -o assignment-2 assignment-2.c -Wall -Wpedantic -Wextra -std=gnu17
+[01m[Kassignment-2.c:[m[K In function ‘[01m[Kmain[m[K’:
+[01m[Kassignment-2.c:30:14:[m[K [01;35m[Kwarning: [m[Kimplicit declaration of function ‘[01m[Katoi[m[K’ [[01;35m[K]8;;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wimplicit-function-declaration-Wimplicit-function-declaration]8;;[m[K]
+   30 |         n1 = [01;35m[Katoi[m[K(argv[1]);
+      |              [01;35m[K^~~~[m[K
+make[1]: Leaving directory '/home/bluu8/3305/Assignment-2'
+
+Assignment 2
+----------------------------
+Proper usage is ./assignment-2 <4 digit integer> <4 digit integer>
+Proper usage is ./assignment-2 <4 digit integer> <4 digit integer>
+Your integers are 1234 5678
+
+---- Calculating X  ----
+Parent (PID 1036625): Sending 12 to child
+Parent (PID 1036625): Sending 56 to child
+Parent (PID 1036625): created child (PID 1036626)
+Child (PID 1036626): Received 12 from parent
+Child (PID 1036626): Received 56 from parent
+Child (PID 1036626): Sending 672 to parent
+Parent (PID 1036625): Received 672 from child
+
+---- Calculating Y  ----
+Parent (PID 1036625): Sending 34 to child
+Parent (PID 1036625): Sending 56 to child
+Parent (PID 1036625): Sending 12 to child
+Parent (PID 1036625): Sending 78 to child
+Child (PID 1036626): Received 12 from parent
+Child (PID 1036626): Received 78 from parent
+Child (PID 1036626): Sending 936 to parent
+Child (PID 1036626): Received 34 from parent
+Child (PID 1036626): Received 56 from parent
+Child (PID 1036626): Sending 1904 to parent
+Parent (PID 1036625): Received 936 from child
+Parent (PID 1036625): Received 1904 from child
+
+---- Calculating Z  ----
+Parent (PID 1036625): Sending 34 to child
+Parent (PID 1036625): Sending 78 to child
+Child (PID 1036626): Received 34 from parent
+Child (PID 1036626): Received 78 from parent
+Child (PID 1036626): Sending 2652 to parent
+Parent (PID 1036625): Received 2652 from child
+1234 * 5678 = 6720000 + 284000 + 2652 = 7006652
+
+Your integers are 9999 9999
+
+---- Calculating X  ----
+Parent (PID 1036627): Sending 99 to child
+Parent (PID 1036627): Sending 99 to child
+Parent (PID 1036627): created child (PID 1036628)
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Sending 9801 to parent
+Parent (PID 1036627): Received 9801 from child
+
+---- Calculating Y  ----
+Parent (PID 1036627): Sending 99 to child
+Parent (PID 1036627): Sending 99 to child
+Child (PID 1036628): Received 99 from parent
+Parent (PID 1036627): Sending 99 to child
+Child (PID 1036628): Received 99 from parent
+Parent (PID 1036627): Sending 99 to child
+Child (PID 1036628): Sending 9801 to parent
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Sending 9801 to parent
+Parent (PID 1036627): Received 9801 from child
+Parent (PID 1036627): Received 9801 from child
+
+---- Calculating Z  ----
+Parent (PID 1036627): Sending 99 to child
+Parent (PID 1036627): Sending 99 to child
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Received 99 from parent
+Child (PID 1036628): Sending 9801 to parent
+Parent (PID 1036627): Received 9801 from child
+9999 * 9999 = 98010000 + 1960200 + 9801 = 99980001
+
+Your integers are 1000 1000
+
+---- Calculating X  ----
+Parent (PID 1036629): created child (PID 1036630)
+Parent (PID 1036629): Sending 10 to child
+Parent (PID 1036629): Sending 10 to child
+Child (PID 1036630): Received 10 from parent
+Child (PID 1036630): Received 10 from parent
+Child (PID 1036630): Sending 100 to parent
+Parent (PID 1036629): Received 100 from child
+
+---- Calculating Y  ----
+Parent (PID 1036629): Sending 0 to child
+Parent (PID 1036629): Sending 10 to child
+Child (PID 1036630): Received 10 from parent
+Parent (PID 1036629): Sending 10 to child
+Child (PID 1036630): Received 0 from parent
+Parent (PID 1036629): Sending 0 to child
+Child (PID 1036630): Sending 0 to parent
+Child (PID 1036630): Received 0 from parent
+Child (PID 1036630): Received 10 from parent
+Child (PID 1036630): Sending 0 to parent
+Parent (PID 1036629): Received 0 from child
+Parent (PID 1036629): Received 0 from child
+
+---- Calculating Z  ----
+Parent (PID 1036629): Sending 0 to child
+Parent (PID 1036629): Sending 0 to child
+Child (PID 1036630): Received 0 from parent
+Child (PID 1036630): Received 0 from parent
+Child (PID 1036630): Sending 0 to parent
+Parent (PID 1036629): Received 0 from child
+1000 * 1000 = 1000000 + 0 + 0 = 1000000
+
+
+Cleaning environment
+----------------------------
+rm -f assignment-2
+
+ASSIGNMENT 2 COMPLETED - Tue Feb 14 06:47:57 PM EST 2023
+
+Script done on 2023-02-14 18:47:57-05:00 [COMMAND_EXIT_CODE="0"]

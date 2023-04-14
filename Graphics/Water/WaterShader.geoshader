@@ -1,0 +1,101 @@
+#version 400
+
+layout (triangles) in;
+layout (triangle_strip, max_vertices=3) out;
+
+// Input vertex data, aggregated into triangles
+in vec3 normal_tes[];
+in vec3 position_tes[];
+in vec3 eye_tes[];
+in vec3 light_tes[];
+in vec2 uv_tes[];
+
+out vec3 position_gs;
+out vec3 normal_gs;
+out vec3 eye_gs;
+out vec3 light_gs;
+out vec2 uv_gs;
+
+// Uniform values that stay constant for the whole mesh.
+uniform sampler2D displacementTexture;
+uniform sampler2D waterTexture;
+uniform float time;
+uniform mat4 MVP;
+uniform mat4 V;
+uniform mat4 P;
+
+// Generate new normals
+vec3 GetNormal(vec4 a, vec4 b, vec4 c)
+{
+   vec3 x = b.xyz - a.xyz;
+   vec3 y = c.xyz - b.xyz;
+
+   return normalize(cross(x, y));
+}
+
+// Gerstner function
+vec3 Gerstner(vec3 worldpos, float w, float A, float phi, float Q, vec2 D, int N) {
+	vec2 xz = vec2(worldpos.x, worldpos.z);
+
+	float x = Q * A * D.x * cos(dot(w * D, xz) + (phi * time));
+	float y = A * sin(dot(w * D, xz) + (phi * time));
+	float z = Q * A * D.y * cos(dot(w * D, xz) + (phi * time));
+
+	return vec3(x, y, z);
+}
+
+void main() {
+	vec4 pos1, pos2, pos3;
+	vec3 newNormal = GetNormal(vec4(position_tes[0], 1), vec4(position_tes[1], 1), vec4(position_tes[2], 1));
+	 
+	for(int i = 0; i < gl_in.length(); ++i) {
+		// Do Gerstner position offsets
+		//vec4 pos = gl_in[i].gl_Position;
+		vec4 pos = vec4(position_tes[i], 1);
+		
+		pos += vec4(Gerstner(position_tes[i], 4, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+		pos += vec4(Gerstner(position_tes[i], 2, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
+		pos += vec4(Gerstner(position_tes[i], 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
+		pos += vec4(Gerstner(position_tes[i], 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
+
+		float dispStrength = 0.1;
+
+		// Output to fragment shader
+		//normal_gs = normal_tes[i];
+
+		// Compute new normals for the fragment shader for every 3 positions
+		if (i % 3 == 0) {
+			pos1 = pos;
+
+			pos2 = vec4(position_tes[i + 1], 1);
+			pos2 += vec4(Gerstner(position_tes[i + 1], 4, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+			pos2 += vec4(Gerstner(position_tes[i + 1], 2, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
+			pos2 += vec4(Gerstner(position_tes[i + 1], 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
+			pos2 += vec4(Gerstner(position_tes[i + 1], 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
+
+			pos3 = vec4(position_tes[i + 2], 1);
+			pos3 += vec4(Gerstner(position_tes[i + 2], 4, 0.08, 1.1, 0.75, vec2(0.3, 0.6), 4), 0.0);
+			pos3 += vec4(Gerstner(position_tes[i + 2], 2, 0.05, 1.1, 0.75, vec2(0.2, 0.866), 4), 0.0);
+			pos3 += vec4(Gerstner(position_tes[i + 2], 0.6, 0.2, 0.4, 0.1, vec2(0.3, 0.7), 4), 0.0);
+			pos3 += vec4(Gerstner(position_tes[i + 2], 0.9, 0.15, 0.4, 0.1, vec2(0.8, 0.1), 4), 0.0);
+
+			newNormal = GetNormal(pos1, pos2, pos3);
+		}
+
+		normal_gs = newNormal;
+		eye_gs = eye_tes[i];
+		light_gs = light_tes[i];
+		uv_gs = uv_tes[i];
+
+		float displace = texture(displacementTexture, uv_tes[i]).x;
+
+		// Multiply MVP
+		pos.y += displace * dispStrength;
+		gl_Position = MVP * pos;
+
+		EmitVertex();
+	}
+	EndPrimitive();
+
+}
+
